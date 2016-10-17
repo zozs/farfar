@@ -16,13 +16,32 @@ This works for all commands.
 
 FARFAR is really versatile and will try to help you with (almost) everything you need, just like a real farfar!
 
+#### Automatically-triggered actions
+FARFAR will periodically send out announcements to remind everyone about the upcoming fikas. The default schedule is like this, assuming Thursday is the fika-day.
+
+ * **Sunday:** A message will be sent out about the next weeks upcoming fika, and who is responsible.
+ * **Thursday at 10:00:** A message will be sent out to remind everyone that later today is fika.
+ * **Thursday at 14:57:** A message will be sent out to remind everyone that fika starts at 15:00.
+
 #### Fika related commands
+
+ * `fika/next/nästa`: If any of these words are mentioned FARFAR will respond with the next fika date, and the person responsible.
 
 #### Member management commands
 
+ * `add user@example.com Name`: Add a new member to the fika group. The initial position will be last in the fika queue.
+ * `remove user@example.com`: Remove someone from the fika group.
+ * `list`: List all members of the fika group. They are listed in next-fika order.
+ * `move user@example.com 2`: Move user from its current position in the list to position 2 (in this case). Can be used to reorder the list.
+
 #### Date blacklisting commands
 
+ * `blacklist add 2016-10-17`: Add the given date to the blacklist, so no fika will be served that day.
+ * `blacklist remove 2016-10-17`: Remove a given date from the blacklist.
+ * `blacklist list`: List all dates in the blacklist.
+
 #### Fun commands
+You have the source code. Go get 'em :wink:
 
 ## Installation, configuration, and running
 
