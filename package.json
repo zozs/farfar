@@ -1,0 +1,19 @@
+{
+  "name": "farfar-slack",
+  "version": "1.0.0",
+  "description": "FARFAR Slack bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Linus Karlsson",
+  "license": "ISC",
+  "dependencies": {
+    "botkit": "^0.4.0",
+    "config": "^1.21.0",
+    "moment": "^2.15.1",
+    "node-schedule": "^1.1.1",
+    "nodemon": "^1.11.0"
+  }
+}

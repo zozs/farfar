@@ -1,0 +1,4 @@
+farfar_data/
+node_modules/
+config/local.json
+*.swp
