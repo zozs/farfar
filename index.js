@@ -236,7 +236,7 @@ controller.hears(['next', 'nästa', 'fika'], ['direct_message', 'direct_mention'
 // We want a periodic fika remainder at certain times.
 // The "every sunday reminder" for next week's fika.
 var weekReminder = schedule.scheduleJob('0 0 12 * * 0', function () {
-  // TODO: actually check if this week have a fika.
+  // TODO: actually check if this week have a fika. could be implemented by checking that data.date - today < 7 (i.e. check that fika is this week)
   nextFika(function (err, data) {
     sayToChannel(config.get('announceChannel'),
       'This is a gentle reminder that fika will be provided by ' + data.member.name +
