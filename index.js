@@ -1,4 +1,5 @@
 var Botkit = require('botkit');
+var async = require('async');
 var config = require('config');
 var moment = require('moment');
 var schedule = require('node-schedule');
@@ -41,6 +42,24 @@ var bot = controller.spawn({
   });
 });
 
+// TODO: we should probably cache users here, since in some cases we make repeated calls quickly.
+var lookupUserId = function (userid, cb) {
+  bot.api.users.list({}, function (err, response) {
+    if (err) { cb(err); return; }
+    if (response.hasOwnProperty('members') && response.ok) {
+      var result = response.members.filter(m => m.id == userid);
+      if (result.length != 1) { cb('No such user id!'); return; }
+      var user = {
+        id: result[0].id,
+        name: result[0].real_name || result[0].name,
+        email: result[0].profile.email,
+        username: result[0].name
+      };
+      cb(null, user);
+    }
+  });
+};
+
 var sayToChannel = function (channel, text) {
   // Finds ID of channel, if not found, log error to console.
   if (channels.hasOwnProperty(channel)) {
@@ -60,9 +79,11 @@ var getData = function (cb) {
 var manipulateData = function (cb, manipulation) {
   getData(function (err, data) {
     if (err) { cb(err); return; }
-    manipulation(data, function (err, newData) {
+    manipulation(data, function (err, newData, returnData) {
       if (err) { cb(err); return; }
-      controller.storage.users.save(newData, cb);
+      controller.storage.users.save(newData, function (err) {
+        cb(err, returnData);
+      });
     });
   });
 };
@@ -80,7 +101,10 @@ var nextFika = function (cb) {
       fikaDay += 7;
     } while (data.blacklist.indexOf(nextFikaDate.format('YYYY-MM-DD')) >= 0);
     
-    cb(null, { date: nextFikaDate, member: data.members[0] });
+    lookupUserId(data.members[0], function (err, user) {
+      if (err) { cb('no such user to serve fika!'); return; }
+      cb(null, { date: nextFikaDate, member: user });
+    });
   });
 };
 
@@ -90,6 +114,7 @@ var blacklist = {
   add: function (date, cb) {
     manipulateData(cb, function (data, cb2) {
       data.blacklist.push(date);
+      data.blacklist.sort();
       cb2(null, data);
     });
   },
@@ -113,32 +138,48 @@ var blacklist = {
 };
 
 var members = {
-  add: function (email, name, cb) {
+  add: function (userid, cb) {
     manipulateData(cb, function (data, cb2) {
-      data.members.push({email: email, name: name});
-      cb2(null, data);
+      // Do a lookup to see if the user exists.
+      lookupUserId(userid, function (err, user) {
+        if (err) { cb2(err); return; }
+        data.members.push(userid);
+        cb2(null, data, user);
+      });
     });
   },
-  remove: function (email, cb) {
+  remove: function (userid, cb) {
     manipulateData(cb, function (data, cb2) {
       let before = data.members.length;
-      data.members = data.members.filter(current => current.email != email);
+      data.members = data.members.filter(current => current != userid);
       let after = data.members.length;
       if (after < before) {
-        cb2(null, data);
+        lookupUserId(userid, function (err, user) {
+          if (!err) {
+            cb2(null, data, user);
+          } else {
+            cb2(null, data, { id: userid, name: userid, username: userid, email: '' });
+          }
+        });
       } else {
         cb2("No such user found to delete");
       }
     });
   },
-  move: function (email, position, cb) {
+  move: function (userid, position, cb) {
     manipulateData(cb, function (data, cb2) {
-      let newMembers = data.members.filter(current => current.email != email);
-      let toMove = data.members.filter(current => current.email == email);
+      let newMembers = data.members.filter(current => current != userid);
+      let toMove = data.members.filter(current => current == userid);
       if (toMove.length == 0) { cb2("No such user."); return; }
       newMembers.splice(position, 0, toMove[0]);
       data.members = newMembers;
-      cb2(null, data);
+      lookupUserId(userid, function (err, user) {
+        if (!err) {
+          cb2(null, data, user);
+        } else {
+          cb2(null, data, { id: userid, name: userid, username: userid, email: '' });
+        }
+      });
     });
   },
   rotate: function (cb) {
@@ -147,7 +188,10 @@ var members = {
   list: function (cb) {
     controller.storage.users.get(FARFAR_USER, function (err, data) {
       if (err) { cb(err); return; }
-      cb(null, data.members);
+      async.mapSeries(data.members, lookupUserId, function (err, users) {
+        if (err) { cb('The user list contains at least one invalid user id!'); return; }
+        cb(null, users);
+      });
     });
   }
 };
@@ -178,57 +222,55 @@ var errorWrap = function (bot, message, cb) {
 
 // Blacklist management
 // TODO: instead of regex date, check actual date validity?
-controller.hears('^blacklist add (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears('^blacklist (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention'], function (bot, message) {
   blacklist.add(message.match[1], errorWrap(bot, message, function (bot, message) {
     bot.reply(message, 'I have added ' + message.match[1] + ' to the blacklist!');
   }));
 });
 
-controller.hears('^blacklist remove (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears('^whitelist (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention'], function (bot, message) {
   blacklist.remove(message.match[1], errorWrap(bot, message, function (bot, message) {
     bot.reply(message, 'I have removed ' + message.match[1] + ' from the blacklist!');
   }));
 });
 
-// TODO: should probably sort the blacklist in date order.
-controller.hears('^blacklist list$', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears('^blacklist$', ['direct_message', 'direct_mention'], function (bot, message) {
   blacklist.list(errorWrap(bot, message, function (bot, message, data) {
-    let msg = 'This is the current blacklist, in arbitrary order:\n';
+    let msg = 'This is the current blacklist:\n';
     data.forEach(date => { msg += date + '\n'; });
     bot.reply(message, msg);
   }));
 });
 
 // Member management
-// TODO: switch from email to slack username instead?
-controller.hears('^add <mailto:\\S+\\|(\\S+)> (.+)$', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-  members.add(message.match[1], message.match[2], errorWrap(bot, message, function (bot, message) {
-    bot.reply(message, 'I have added ' + message.match[2] + ' to the fika list!');
+controller.hears('^add <@(.*)>$', ['direct_message', 'direct_mention'], function (bot, message) {
+  members.add(message.match[1], errorWrap(bot, message, function (bot, message, data) {
+    bot.reply(message, 'I have added ' + data.name + ' (<@' + data.id + '>, ' + data.email + ') to the fika list!');
   }));
 });
 
-controller.hears('^remove <mailto:\\S+\\|(\\S+)>$', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-  members.remove(message.match[1], errorWrap(bot, message, function (bot, message) {
-    bot.reply(message, 'I have removed ' + message.match[1] + ' from the fika list!');
+controller.hears('^remove <@(.*)>$', ['direct_message', 'direct_mention'], function (bot, message) {
+  members.remove(message.match[1], errorWrap(bot, message, function (bot, message, data) {
+    bot.reply(message, 'I have removed ' + data.name + ' (<@' + data.id + '>, ' + data.email + ') from the fika list!');
   }));
 });
 
-controller.hears('^move <mailto:\\S+\\|(\\S+)> (\\d+)$', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-  members.move(message.match[1], message.match[2], errorWrap(bot, message, function (bot, message) {
-    bot.reply(message, 'I have moved ' + message.match[1] + ' to position ' + message.match[2] + ' in the fika order.');
+controller.hears('^move <@(.*)> (\\d+)$', ['direct_message', 'direct_mention'], function (bot, message) {
+  members.move(message.match[1], message.match[2], errorWrap(bot, message, function (bot, message, data) {
+    bot.reply(message, 'I have moved ' + data.name + ' (<@' + data.id + '>) to position ' + message.match[2] + ' in the fika order.');
   }));
 });
 
-controller.hears('^list$', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears('^list$', ['direct_message', 'direct_mention'], function (bot, message) {
   members.list(errorWrap(bot, message, function (bot, message, data) {
     let msg = 'This is the current member list, in next-fika order:\n';
-    data.forEach(member => { msg += member.name + ' (' + member.email + ')\n'; });
+    data.forEach(member => { msg += member.name + ' (' + member.username + ')\n'; });
     bot.reply(message, msg);
   }));
 });
 
 // Sometimes we just want to ask when the next fika is.
-controller.hears(['next', 'nästa', 'fika'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['next', 'nästa', 'fika'], ['direct_message', 'direct_mention'], function (bot, message) {
   nextFika(function (err, data) {
     bot.reply(message, 'The next fika takes place on ' + data.date.format('YYYY-MM-DD') + ' and is served by ' + data.member.name);
   });
@@ -237,11 +279,12 @@ controller.hears(['next', 'nästa', 'fika'], ['direct_message', 'direct_mention'
 // We want a periodic fika remainder at certain times.
 // The "every sunday reminder" for next week's fika.
 var weekReminder = schedule.scheduleJob('0 0 12 * * 0', function () {
-  // TODO: actually check if this week have a fika. could be implemented by checking that data.date - today < 7 (i.e. check that fika is this week)
   nextFika(function (err, data) {
-    sayToChannel(config.get('announceChannel'),
-      'This is a gentle reminder that fika will be provided by ' + data.member.name +
-      ' this coming ' + data.date.format('dddd') + '.\n\nBest Wishes,\nFARFAR');
+    if (data.date.subtract(7, 'days') < moment()) { // If fika day is within 7 seven days from today.
+      sayToChannel(config.get('announceChannel'),
+        'This is a gentle reminder that fika will be provided by ' + data.member.name +
+        ' this coming ' + data.date.format('dddd') + '.\n\nBest Wishes,\nFARFAR');
+    }
   });
 });
 

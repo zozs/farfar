@@ -29,16 +29,16 @@ FARFAR will periodically send out announcements to remind everyone about the upc
 
 #### Member management commands
 
- * `add user@example.com Name`: Add a new member to the fika group. The initial position will be last in the fika queue.
- * `remove user@example.com`: Remove someone from the fika group.
+ * `add @slackuser`: Add a new member to the fika group. The initial position will be last in the fika queue.
+ * `remove @slackuser`: Remove someone from the fika group.
  * `list`: List all members of the fika group. They are listed in next-fika order.
- * `move user@example.com 2`: Move user from its current position in the list to position 2 (in this case). Can be used to reorder the list.
+ * `move @slackuser 2`: Move user from its current position in the list to position 2 (in this case). Can be used to reorder the list.
 
 #### Date blacklisting commands
 
- * `blacklist add 2016-10-17`: Add the given date to the blacklist, so no fika will be served that day.
- * `blacklist remove 2016-10-17`: Remove a given date from the blacklist.
- * `blacklist list`: List all dates in the blacklist.
+ * `blacklist 2016-10-17`: Add the given date to the blacklist, so no fika will be served that day.
+ * `whitelist 2016-10-17`: Remove the given date from the blacklist.
+ * `blacklist`: List all dates in the blacklist.
 
 #### Fun commands
 You have the source code. Go get 'em :wink:

@@ -2,6 +2,10 @@
   "name": "farfar-slack",
   "version": "1.0.0",
   "description": "FARFAR Slack bot",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/zozs/farfar.git"
+  },
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
@@ -10,6 +14,7 @@
   "author": "Linus Karlsson",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.1.2",
     "botkit": "^0.4.0",
     "config": "^1.21.0",
     "moment": "^2.15.1",
