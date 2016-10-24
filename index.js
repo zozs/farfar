@@ -17,7 +17,8 @@ var channels = {};
 
 // connect the bot to a stream of messages
 var bot = controller.spawn({
-  token: config.get('token')
+  token: config.get('token'),
+  retry: 50
 }).startRTM(function (err, bot) {
   // First time we may have to initialize data.
   controller.storage.users.get(FARFAR_USER, function (err, data) {
