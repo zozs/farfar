@@ -2,9 +2,9 @@
   "name": "farfar-slack",
   "version": "1.0.0",
   "description": "FARFAR Slack bot",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/zozs/farfar.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zozs/farfar.git"
   },
   "main": "index.js",
   "scripts": {
@@ -19,6 +19,7 @@
     "config": "^1.21.0",
     "moment": "^2.15.1",
     "node-schedule": "^1.1.1",
+    "nodemailer": "^2.6.4",
     "nodemon": "^1.11.0"
   }
 }

@@ -3,5 +3,6 @@
   "storageDirectory": "farfar_data",
   "storageKey": "farfar",
   "fikaDay": 4,
-  "announceChannel": "random"
+  "announceChannel": "general",
+  "nodemailerTransport": "smtp://smtp.example.com"
 }

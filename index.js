@@ -2,6 +2,7 @@ var Botkit = require('botkit');
 var async = require('async');
 var config = require('config');
 var moment = require('moment');
+var nodemailer = require('nodemailer');
 var schedule = require('node-schedule');
 
 var controller = Botkit.slackbot({
@@ -12,6 +13,9 @@ var controller = Botkit.slackbot({
 });
 
 const FARFAR_USER = config.get('storageKey');
+
+// Prepare e-mail transport.
+var transporter = nodemailer.createTransport(config.get('nodemailerTransport'));
 
 // keep list of channel ids
 var channels = {};
@@ -69,6 +73,31 @@ var sayToChannel = function (channel, text) {
     });
   } else {
     console.log('No channel', channel, 'found! Only have:', channels);
+  }
+};
+
+var sayToMember = function (member, text, emailSubject) {
+  // We must first open a direct IM channel to the user.
+  bot.api.im.open({user: member.id}, function (err, response) {
+    if (err || !response.ok) { console.log('Failed to open IM channel with', member.name); return; }
+    bot.say({
+      text: text,
+      channel: response.channel.id
+    });
+  });
+  
+  if (emailSubject && member.email) {
+    var mailOptions = {
+      from: '"FARFAR" <linus.karlsson@eit.lth.se>',
+      to: '"' + member.name + '" <' + member.email + '>',
+      subject: emailSubject,
+      text: text
+    };
+    transporter.sendMail(mailOptions, function (err, info) {
+      if (err) {
+        console.log('Failed to send e-mail:', err);
+      }
+    });
   }
 };
 
@@ -284,6 +313,9 @@ var weekReminder = schedule.scheduleJob('0 0 12 * * 0', function () {
       sayToChannel(config.get('announceChannel'),
         'This is a gentle reminder that fika will be provided by ' + data.member.name +
         ' this coming ' + data.date.format('dddd') + '.\n\nBest Wishes,\nFARFAR');
+      sayToMember(data.member, 'This is a gentle reminder that *you* are scheduled ' +
+        'to provide fika this coming ' + data.date.format('dddd') + '.\n\nBest Wishes,\nFARFAR',
+        'You serve fika this coming ' + data.date.format('dddd'));
     }
   });
 });
@@ -295,6 +327,8 @@ var sameDayReminder = schedule.scheduleJob('0 0 10 * * ' + config.get('fikaDay')
     if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
       sayToChannel(config.get('announceChannel'),
         'This is a gentle reminder that fika will be provided by ' + data.member.name + ' at 15:00 today.\n\nBest Wishes,\nFARFAR');
+      sayToMember(data.member, 'This is a gentle reminder that *you* are scheduled ' +
+        'to provide fika at 15:00 today.\n\nBest Wishes,\nFARFAR', 'You serve fika today');
     }
   });
 });
