@@ -212,7 +212,10 @@ var members = {
     });
   },
   rotate: function (cb) {
-
+    manipulateData(cb, function (data, cb2) {
+      data.members.push(data.members.shift());
+      cb2(null, data);
+    });
   },
   list: function (cb) {
     controller.storage.users.get(FARFAR_USER, function (err, data) {
@@ -284,6 +287,12 @@ controller.hears('^remove <@(.*)>$', ['direct_message', 'direct_mention'], funct
   }));
 });
 
+controller.hears('^rotate$', ['direct_message', 'direct_mention'], function (bot, message) {
+  members.rotate(errorWrap(bot, message, function (bot, message) {
+    bot.reply(message, 'I have rotated the fika queue one step.');
+  }));
+});
+
 controller.hears('^move <@(.*)> (\\d+)$', ['direct_message', 'direct_mention'], function (bot, message) {
   members.move(message.match[1], message.match[2], errorWrap(bot, message, function (bot, message, data) {
     bot.reply(message, 'I have moved ' + data.name + ' (<@' + data.id + '>) to position ' + message.match[2] + ' in the fika order.');
@@ -334,12 +343,18 @@ var sameDayReminder = schedule.scheduleJob('0 0 10 * * ' + config.get('fikaDay')
 });
 
 // The "IT IS FUCKING FIKA RIGHT NOW reminder" when fika starts in 3 minutes.
-// TODO: make 15:00 flexible...
+// Note that this also rotatis the fika schedule.
+// TODO: make 15:00 flexible.
 var sameDayReminder = schedule.scheduleJob('0 57 14 * * ' + config.get('fikaDay'), function () {
   nextFika(function (err, data) {
     if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
       sayToChannel(config.get('announceChannel'),
         'This is the final call: Fika begins pretty much now!\n\nBest Wishes,\nFARFAR');
+      members.rotate(function (err) {
+        if (err) {
+          console.log('Failed to rotate the fika queue!');
+        }
+      });
     }
  });
 });
