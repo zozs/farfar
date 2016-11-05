@@ -3,7 +3,7 @@ FARFAR
 
 **Fully Automated Robotic Fika Announcer and Reminder**
 
-FARFAR is a Slack bot which periodically sends out reminders about this weeks fika to a set of Slack users. Each week a new person is responsible for this week's fika, in a round-robin fashion.
+FARFAR is a Slack bot which periodically sends out reminders about this week's fika to a set of Slack users. Each week a new person is responsible for this week's fika, in a round-robin fashion.
 
 ## Usage
 
@@ -39,6 +39,7 @@ In addition to this, there are also two notifications sent only to person respon
  * `add @slackuser`: Add a new member to the fika group. The initial position will be last in the fika queue.
  * `remove @slackuser`: Remove someone from the fika group.
  * `list`: List all members of the fika group. They are listed in next-fika order.
+ * `rotate`: Move this week's fika responsible to the last position in the fika queue.
  * `move @slackuser 2`: Move user from its current position in the list to position 2 (in this case). Can be used to reorder the list.
 
 #### Date blacklisting commands
