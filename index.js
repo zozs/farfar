@@ -128,7 +128,7 @@ var nextFika = function (cb) {
     do {
       var nextFikaDate = moment().day(fikaDay);
       fikaDay += 7;
-    } while (data.blacklist.indexOf(nextFikaDate.format('YYYY-MM-DD')) >= 0);
+    } while (nextFikaDate < moment() || data.blacklist.indexOf(nextFikaDate.format('YYYY-MM-DD')) >= 0);
     
     lookupUserId(data.members[0], function (err, user) {
       if (err) { cb('no such user to serve fika!'); return; }
