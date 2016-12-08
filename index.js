@@ -310,14 +310,21 @@ controller.hears('^list$', ['direct_message', 'direct_mention'], function (bot, 
 // Sometimes we just want to ask when the next fika is.
 controller.hears(['next', 'nästa', 'fika'], ['direct_message', 'direct_mention'], function (bot, message) {
   nextFika(function (err, data) {
-    bot.reply(message, 'The next fika takes place on ' + data.date.format('YYYY-MM-DD') + ' and is served by ' + data.member.name);
+    if (!err) {
+      bot.reply(message, 'The next fika takes place on ' + data.date.format('YYYY-MM-DD') + ' and is served by ' + data.member.name);
+    } else {
+      bot.reply(message, 'Something went wrong. Sorry :(')
+      console.log('Failed to print next fika:', err);
+    }
   });
 });
 
 // We want a periodic fika remainder at certain times.
 // The "every sunday reminder" for next week's fika.
 var weekReminder = schedule.scheduleJob('0 0 12 * * 0', function () {
+  console.log('SCHEDULE: Fika later this week job launching.');
   nextFika(function (err, data) {
+    if (err) { console.log('Failed to fetch next fika info:', err); }
     if (data.date.subtract(7, 'days') < moment()) { // If fika day is within 7 seven days from today.
       sayToChannel(config.get('announceChannel'),
         'This is a gentle reminder that fika will be provided by ' + data.member.name +
@@ -332,7 +339,9 @@ var weekReminder = schedule.scheduleJob('0 0 12 * * 0', function () {
 // The "every <fikaday> reminder" for the same day's fika.
 var sameDayReminder = schedule.scheduleJob('0 0 10 * * ' + config.get('fikaDay'), function () {
   // First we must check that today is indeed the fika day (this day could have been blacklisted!)
+  console.log('SCHEDULE: Fika later today job launching.');
   nextFika(function (err, data) {
+    if (err) { console.log('Failed to fetch next fika info:', err); }
     if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
       sayToChannel(config.get('announceChannel'),
         'This is a gentle reminder that fika will be provided by ' + data.member.name + ' at 15:00 today.\n\nBest Wishes,\nFARFAR');
@@ -346,7 +355,9 @@ var sameDayReminder = schedule.scheduleJob('0 0 10 * * ' + config.get('fikaDay')
 // Note that this also rotatis the fika schedule.
 // TODO: make 15:00 flexible.
 var sameDayReminder = schedule.scheduleJob('0 57 14 * * ' + config.get('fikaDay'), function () {
+  console.log('SCHEDULE: Fika right now job launching.');
   nextFika(function (err, data) {
+    if (err) { console.log('Failed to fetch next fika info:', err); }
     if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
       sayToChannel(config.get('announceChannel'),
         'This is the final call: Fika begins pretty much now!\n\nBest Wishes,\nFARFAR');
