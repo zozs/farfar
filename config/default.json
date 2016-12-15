@@ -2,7 +2,9 @@
   "token": "",
   "storageDirectory": "farfar_data",
   "storageKey": "farfar",
-  "fikaDay": 4,
+  "weeklyReminder": {"hour": 12, "minute": 0, "dayOfWeek": 0},
+  "sameDayReminder": {"hour": 10, "minute": 0, "dayOfWeek": 4},
+  "rightNowReminder": {"hour": 14, "minute": 57, "dayOfWeek": 4},
   "announceChannel": "general",
   "nodemailerTransport": "smtp://smtp.example.com"
 }

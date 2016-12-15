@@ -6,10 +6,10 @@
     "type": "git",
     "url": "https://github.com/zozs/farfar.git"
   },
-  "main": "index.js",
+  "main": "farfar.js",
   "scripts": {
     "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "author": "Linus Karlsson",
   "license": "ISC",
@@ -21,5 +21,8 @@
     "node-schedule": "^1.1.1",
     "nodemailer": "^2.6.4",
     "nodemon": "^1.11.0"
+  },
+  "devDependencies": {
+    "jasmine": "^2.5.2"
   }
 }
