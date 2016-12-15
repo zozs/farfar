@@ -128,7 +128,7 @@ var nextFika = function (cb) {
     do {
       var nextFikaDate = moment().day(fikaDay);
       fikaDay += 7;
-    } while (nextFikaDate < moment() || data.blacklist.indexOf(nextFikaDate.format('YYYY-MM-DD')) >= 0);
+    } while (data.blacklist.indexOf(nextFikaDate.format('YYYY-MM-DD')) >= 0);
     
     lookupUserId(data.members[0], function (err, user) {
       if (err) { cb('no such user to serve fika!'); return; }
@@ -332,6 +332,8 @@ var weekReminder = schedule.scheduleJob('0 0 12 * * 0', function () {
       sayToMember(data.member, 'This is a gentle reminder that *you* are scheduled ' +
         'to provide fika this coming ' + data.date.format('dddd') + '.\n\nBest Wishes,\nFARFAR',
         'You serve fika this coming ' + data.date.format('dddd'));
+    } else {
+      console.log('SCHEDULE: No fika this week, >= 7 days until next occasion.');
     }
   });
 });
@@ -347,6 +349,8 @@ var sameDayReminder = schedule.scheduleJob('0 0 10 * * ' + config.get('fikaDay')
         'This is a gentle reminder that fika will be provided by ' + data.member.name + ' at 15:00 today.\n\nBest Wishes,\nFARFAR');
       sayToMember(data.member, 'This is a gentle reminder that *you* are scheduled ' +
         'to provide fika at 15:00 today.\n\nBest Wishes,\nFARFAR', 'You serve fika today');
+    } else {
+      console.log('SCHEDULE: No fika today. Next fika day is not today.');
     }
   });
 });
@@ -354,7 +358,7 @@ var sameDayReminder = schedule.scheduleJob('0 0 10 * * ' + config.get('fikaDay')
 // The "IT IS FUCKING FIKA RIGHT NOW reminder" when fika starts in 3 minutes.
 // Note that this also rotatis the fika schedule.
 // TODO: make 15:00 flexible.
-var sameDayReminder = schedule.scheduleJob('0 57 14 * * ' + config.get('fikaDay'), function () {
+var sameDayReminder = schedule.scheduleJob('0 14 57 * * ' + config.get('fikaDay'), function () {
   console.log('SCHEDULE: Fika right now job launching.');
   nextFika(function (err, data) {
     if (err) { console.log('Failed to fetch next fika info:', err); }
@@ -366,6 +370,8 @@ var sameDayReminder = schedule.scheduleJob('0 57 14 * * ' + config.get('fikaDay'
           console.log('Failed to rotate the fika queue!');
         }
       });
+    } else {
+      console.log('SCHEDULE: No fika today. Next fika day is not today.', data.date.format('YYYY-MM-DD'));
     }
  });
 });
