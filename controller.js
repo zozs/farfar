@@ -88,7 +88,7 @@ module.exports = function (config) {
     }
   };
 
-  funcs.storage = funcs.controller.storage;
+  funcs.storage = controller.storage;
 
   return funcs;
 };
