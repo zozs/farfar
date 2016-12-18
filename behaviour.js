@@ -96,7 +96,7 @@ module.exports = function (config, controller, model) {
   // The "every sunday reminder" for next week's fika.
   var weekReminder = schedule.scheduleJob(config.get('weeklyReminder'), function () {
     console.log('SCHEDULE: Fika later this week job launching.');
-    nextFika(function (err, data) {
+    model.nextFika(function (err, data) {
       if (err) { console.log('Failed to fetch next fika info:', err); }
       if (data.date.subtract(7, 'days') < moment()) { // If fika day is within 7 seven days from today.
         sayToChannel(config.get('announceChannel'),
@@ -115,7 +115,7 @@ module.exports = function (config, controller, model) {
   var sameDayReminder = schedule.scheduleJob(config.get('sameDayReminder'), function () {
     // First we must check that today is indeed the fika day (this day could have been blacklisted!)
     console.log('SCHEDULE: Fika later today job launching.');
-    nextFika(function (err, data) {
+    model.nextFika(function (err, data) {
       if (err) { console.log('Failed to fetch next fika info:', err); }
       if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
         sayToChannel(config.get('announceChannel'),
@@ -132,7 +132,7 @@ module.exports = function (config, controller, model) {
   // Note that this also rotatis the fika schedule.
   var sameDayReminder = schedule.scheduleJob(config.get('rightNowReminder'), function () {
     console.log('SCHEDULE: Fika right now job launching.');
-    nextFika(function (err, data) {
+    model.nextFika(function (err, data) {
       if (err) { console.log('Failed to fetch next fika info:', err); }
       if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
         sayToChannel(config.get('announceChannel'),
