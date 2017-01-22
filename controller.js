@@ -73,7 +73,7 @@ module.exports = function (config) {
     }
   };
 
-  var sayToMember = function (member, text, emailSubject) {
+  funcs.sayToMember = function (member, text, emailSubject) {
     // We must first open a direct IM channel to the user.
     funcs.bot.api.im.open({user: member.id}, function (err, response) {
       if (err || !response.ok) { console.log('Failed to open IM channel with', member.name); return; }

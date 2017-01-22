@@ -100,10 +100,10 @@ module.exports = function (config, controller, model) {
     model.nextFika(function (err, data) {
       if (err) { console.log('Failed to fetch next fika info:', err); }
       if (data.date.subtract(7, 'days') < moment()) { // If fika day is within 7 seven days from today.
-        sayToChannel(config.get('announceChannel'),
+        controller.sayToChannel(config.get('announceChannel'),
           'This is a gentle reminder that fika will be provided by ' + data.member.name +
           ' this coming ' + data.date.format('dddd') + '.\n\nBest Wishes,\nFARFAR');
-        sayToMember(data.member, 'This is a gentle reminder that *you* are scheduled ' +
+        controller.sayToMember(data.member, 'This is a gentle reminder that *you* are scheduled ' +
           'to provide fika this coming ' + data.date.format('dddd') + '.\n\nBest Wishes,\nFARFAR',
           'You serve fika this coming ' + data.date.format('dddd'));
       } else {
@@ -119,9 +119,9 @@ module.exports = function (config, controller, model) {
     model.nextFika(function (err, data) {
       if (err) { console.log('Failed to fetch next fika info:', err); }
       if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
-        sayToChannel(config.get('announceChannel'),
+        controller.sayToChannel(config.get('announceChannel'),
           'This is a gentle reminder that fika will be provided by ' + data.member.name + ' at 15:00 today.\n\nBest Wishes,\nFARFAR');
-        sayToMember(data.member, 'This is a gentle reminder that *you* are scheduled ' +
+        controller.sayToMember(data.member, 'This is a gentle reminder that *you* are scheduled ' +
           'to provide fika at 15:00 today.\n\nBest Wishes,\nFARFAR', 'You serve fika today');
       } else {
         console.log('SCHEDULE: No fika today. Next fika day is not today.');
@@ -136,7 +136,7 @@ module.exports = function (config, controller, model) {
     model.nextFika(function (err, data) {
       if (err) { console.log('Failed to fetch next fika info:', err); }
       if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
-        sayToChannel(config.get('announceChannel'),
+        controller.sayToChannel(config.get('announceChannel'),
           'This is the final call: Fika begins pretty much now!\n\nBest Wishes,\nFARFAR');
         members.rotate(function (err) {
           if (err) {
