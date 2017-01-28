@@ -138,7 +138,7 @@ module.exports = function (config, controller, model) {
       if (data.date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
         controller.sayToChannel(config.get('announceChannel'),
           'This is the final call: Fika begins pretty much now!\n\nBest Wishes,\nFARFAR');
-        members.rotate(function (err) {
+        model.members.rotate(function (err) {
           if (err) {
             console.log('Failed to rotate the fika queue!');
           }

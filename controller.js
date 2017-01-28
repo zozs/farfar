@@ -1,6 +1,7 @@
 var Botkit = require('botkit');
 
 module.exports = function (config) {
+  var mail = require('./mail')(config);
   var funcs = {};
 
   const FARFAR_USER = config.get('storageKey');
