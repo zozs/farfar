@@ -11,8 +11,14 @@ module.exports = function (config, controller, model) {
     bot.reply(message,'Sorry, you should speak to Martin about kebab...');
   });
 
+  controller.hears('sha1easteregg',['direct_message','direct_mention','mention'], function (bot, message) {
+    controller.sayToChannel(config.get('announceChannel'), 'Holy shit a collision in SHA-1 :scream:');
+  });
+
+
   controller.hears('jag heter (\\S+)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, 'Hej ' + message.match[1] + ', du är söt! Puss på dig! :kissing_heart:');
+    console.log(message);
   });
 
   var errorWrap = function (bot, message, cb) {

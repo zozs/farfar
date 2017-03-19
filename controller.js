@@ -1,4 +1,5 @@
 var Botkit = require('botkit');
+var moment = require('moment');
 
 module.exports = function (config) {
   var mail = require('./mail')(config);
@@ -44,21 +45,42 @@ module.exports = function (config) {
   // Just forward the hears function call.
   funcs.hears = controller.hears;
 
-  // TODO: we should probably cache users here, since in some cases we make repeated calls quickly.
+  // Stores the time of the last request, we only send at most one request every ten seconds.
+  var lastUsersRequestTime;
+  var lastUsersRequest;
+  var cacheUsersRequestWrapper = function (cb) {
+    if (!lastUsersRequest || !lastUsersRequestTime || moment().diff(lastUsersRequestTime, 'seconds') >= 10) {
+      // Perform an API request.
+      funcs.bot.api.users.list({}, function (err, response) {
+        if (err) { cb(err); return; }
+
+        // Store cached result, if valid.
+        if (response.hasOwnProperty('members') && response.ok) {
+          lastUsersRequestTime = moment();
+          lastUsersRequest = response.members;
+          cb(null, lastUsersRequest);
+        } else {
+          cb('ERROR: Tried to cache invalid response object');
+        }
+      });
+    } else {
+      // Used cached result.
+      cb(null, lastUsersRequest);
+    }
+  };
+
   funcs.lookupUserId = function (userid, cb) {
-    funcs.bot.api.users.list({}, function (err, response) {
+    cacheUsersRequestWrapper(function (err, response) {
       if (err) { cb(err); return; }
-      if (response.hasOwnProperty('members') && response.ok) {
-        var result = response.members.filter(m => m.id == userid);
-        if (result.length != 1) { cb('No such user id!'); return; }
-        var user = {
-          id: result[0].id,
-          name: result[0].real_name || result[0].name,
-          email: result[0].profile.email,
-          username: result[0].name
-        };
-        cb(null, user);
-      }
+      var result = response.filter(m => m.id == userid);
+      if (result.length != 1) { cb('No such user id!'); return; }
+      var user = {
+        id: result[0].id,
+        name: result[0].real_name || result[0].name,
+        email: result[0].profile.email,
+        username: result[0].name
+      };
+      cb(null, user);
     });
   };
 
