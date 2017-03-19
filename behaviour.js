@@ -8,13 +8,29 @@ module.exports = function (config, controller, model) {
   });
 
   controller.hears('kebab',['direct_message','direct_mention','mention'], function (bot, message) {
-    bot.reply(message,'Sorry, you should speak to Martin about kebab...');
+    bot.reply(message,'Sorry, you should speak to Martin about kebab.');
   });
 
   controller.hears('sha1easteregg',['direct_message','direct_mention','mention'], function (bot, message) {
     controller.sayToChannel(config.get('announceChannel'), 'Holy shit a collision in SHA-1 :scream:');
   });
 
+  controller.hears('^help$', ['direct_message', 'direct_mention'], function (bot, message) {
+    var helpText = `:man: *FARFAR - _Fully Automated Robotic Fika Announcer and Reminder_*
+:cookie: Fika-related commands
+> • \`fika/next/nästa\`: mention any of these words, and FARFAR will respond with the next fika date, and the person responsible.
+:busts_in_silhouette: Member management commands
+> • \`add @user\`: add new member to fika group
+> • \`remove @user\`: remove someone from fika group
+> • \`list\`: list all members of the fika group in next-fika order
+> • \`rotate\`: move this week's fika responsible to the last position in the fika queue.
+> • \`move @user 2\`: move user to given position (2 in this case) of the fika queue. zero-indexed.
+:date: Date blacklisting commands
+> • \`blacklist 2017-03-19\`: add date to blacklist, no fika will be served that day.
+> • \`whitelist 2017-03-19\`: remove date from blacklist.
+> • \`blacklist\`: list all dates in the blacklist.`;
+    bot.reply(message, helpText);
+  });
 
   controller.hears('jag heter (\\S+)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, 'Hej ' + message.match[1] + ', du är söt! Puss på dig! :kissing_heart:');
