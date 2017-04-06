@@ -28,7 +28,11 @@ module.exports = function (config, controller, model) {
 :date: Date blacklisting commands
 > • \`blacklist 2017-03-19\`: add date to blacklist, no fika will be served that day.
 > • \`whitelist 2017-03-19\`: remove date from blacklist.
-> • \`blacklist\`: list all dates in the blacklist.`;
+> • \`blacklist\`: list all dates in the blacklist.
+:lock: Access control commands
+> • \`allow @user\`: add new administrator
+> • \`disallow @user\`: remove administrator
+> • \`admins\`: list all administrators`;
     bot.reply(message, helpText);
   });
 
@@ -48,19 +52,32 @@ module.exports = function (config, controller, model) {
     };
   };
 
+  var accessControl = function (onAuthorized) {
+    return function (bot, message) {
+      // Check against whitelist.
+      model.modifyWhitelist.valid(message.user, function (err, valid) {
+        if (valid) {
+          onAuthorized(bot, message);
+        } else {
+          bot.reply(message, 'Access denied');
+        }
+      });
+    };
+  };
+
   // Blacklist management
   // TODO: instead of regex date, check actual date validity?
-  controller.hears('^blacklist (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention'], function (bot, message)  {
+  controller.hears('^blacklist (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention'], accessControl(function (bot, message)  {
     model.blacklist.add(message.match[1], errorWrap(bot, message, function (bot, message) {
       bot.reply(message, 'I have added ' + message.match[1] + ' to the blacklist!');
     }));
-  });
+  }));
 
-  controller.hears('^whitelist (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention'], function (bot, message) {
+  controller.hears('^whitelist (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
     model.blacklist.remove(message.match[1], errorWrap(bot, message, function (bot, message) {
       bot.reply(message, 'I have removed ' + message.match[1] + ' from the blacklist!');
     }));
-  });
+  }));
 
   controller.hears('^blacklist$', ['direct_message', 'direct_mention'], function (bot, message) {
     model.blacklist.list(errorWrap(bot, message, function (bot, message, data) {
@@ -71,33 +88,54 @@ module.exports = function (config, controller, model) {
   });
 
   // Member management
-  controller.hears('^add <@(.*)>$', ['direct_message', 'direct_mention'], function (bot, message) {
+  controller.hears('^add <@(.*)>$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
     model.members.add(message.match[1], errorWrap(bot, message, function (bot, message, data) {
       bot.reply(message, 'I have added ' + data.name + ' (<@' + data.id + '>, ' + data.email + ') to the fika list!');
     }));
-  });
+  }));
 
-  controller.hears('^remove <@(.*)>$', ['direct_message', 'direct_mention'], function (bot, message) {
+  controller.hears('^remove <@(.*)>$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
     model.members.remove(message.match[1], errorWrap(bot, message, function (bot, message, data) {
       bot.reply(message, 'I have removed ' + data.name + ' (<@' + data.id + '>, ' + data.email + ') from the fika list!');
     }));
-  });
+  }));
 
-  controller.hears('^rotate$', ['direct_message', 'direct_mention'], function (bot, message) {
+  controller.hears('^rotate$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
     model.members.rotate(errorWrap(bot, message, function (bot, message) {
       bot.reply(message, 'I have rotated the fika queue one step.');
     }));
-  });
+  }));
 
-  controller.hears('^move <@(.*)> (\\d+)$', ['direct_message', 'direct_mention'], function (bot, message) {
+  controller.hears('^move <@(.*)> (\\d+)$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
     model.members.move(message.match[1], message.match[2], errorWrap(bot, message, function (bot, message, data) {
       bot.reply(message, 'I have moved ' + data.name + ' (<@' + data.id + '>) to position ' + message.match[2] + ' in the fika order.');
     }));
-  });
+  }));
 
   controller.hears('^list$', ['direct_message', 'direct_mention'], function (bot, message) {
     model.members.list(errorWrap(bot, message, function (bot, message, data) {
       let msg = 'This is the current member list, in next-fika order:\n';
+      data.forEach(member => { msg += member.name + ' (' + member.username + ')\n'; });
+      bot.reply(message, msg);
+    }));
+  });
+
+  // Access control management
+  controller.hears('^allow <@(.*)>$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
+    model.modifyWhitelist.add(message.match[1], errorWrap(bot, message, function (bot, message, data) {
+      bot.reply(message, 'I have added ' + data.name + ' (<@' + data.id + '> to the admin whitelist!');
+    }));
+  }));
+
+  controller.hears('^disallow <@(.*)>$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
+    model.modifyWhitelist.remove(message.match[1], errorWrap(bot, message, function (bot, message, data) {
+      bot.reply(message, 'I have removed ' + data.name + ' (<@' + data.id + '> from the admin whitelist!');
+    }));
+  }));
+
+  controller.hears('^admins$', ['direct_message', 'direct_mention'], function (bot, message) {
+    model.modifyWhitelist.list(errorWrap(bot, message, function (bot, message, data) {
+      let msg = 'This is the current list of administators:\n';
       data.forEach(member => { msg += member.name + ' (' + member.username + ')\n'; });
       bot.reply(message, msg);
     }));

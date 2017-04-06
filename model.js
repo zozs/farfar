@@ -75,6 +75,57 @@ module.exports = function (config, controller) {
     }
   };
 
+  funcs.modifyWhitelist = {
+    add: function (userid, cb) {
+      manipulateData(cb, function (data, cb2) {
+        // Do a lookup to see if the user exists.
+        controller.lookupUserId(userid, function (err, user) {
+          if (err) { cb2(err); return; }
+          data.modifyWhitelist.push(userid);
+          cb2(null, data, user);
+        });
+      });
+    },
+    remove: function (userid, cb) {
+      manipulateData(cb, function (data, cb2) {
+        let before = data.modifyWhitelist.length;
+        data.modifyWhitelist = data.modifyWhitelist.filter(current => current != userid);
+        let after = data.modifyWhitelist.length;
+        if (after < before) {
+          controller.lookupUserId(userid, function (err, user) {
+            if (!err) {
+              cb2(null, data, user);
+            } else {
+              cb2(null, data, { id: userid, name: userid, username: userid, email: '' });
+            }
+          });
+        } else {
+          cb2("No such user found to remove from admin list");
+        }
+      });
+    },
+    valid: function (userid, cb) {
+      // Valid if either whitelist empty, or if in whitelist.
+      controller.storage.users.get(FARFAR_USER, function (err, data) {
+        if (err) { cb(err); return; }
+        if (data.modifyWhitelist.length == 0 || data.modifyWhitelist.indexOf(userid) > -1) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+        }
+      });
+    },
+    list: function (cb) {
+      controller.storage.users.get(FARFAR_USER, function (err, data) {
+        if (err) { cb(err); return; }
+        async.mapSeries(data.modifyWhitelist, controller.lookupUserId, function (err, users) {
+          if (err) { cb('The admin list contains at least one invalid user id!'); return; }
+          cb(null, users);
+        });
+      });
+    }
+  };
+
   funcs.members = {
     add: function (userid, cb) {
       manipulateData(cb, function (data, cb2) {

@@ -21,11 +21,16 @@ module.exports = function (config) {
     token: config.get('token'),
     retry: 50
   }).startRTM(function (err, bot) {
+    if (err) {
+      console.log('Failed to initialize connection to Slack. Got error:', err);
+      throw new Error('Failed to initialize connection to Slack');
+    }
+
     // First time we may have to initialize data.
     controller.storage.users.get(FARFAR_USER, function (err, data) {
       if (err) { 
         // No such data, let's create it!
-        var data = {id: FARFAR_USER, members: [], blacklist: []};
+        var data = {id: FARFAR_USER, members: [], blacklist: [], modifyWhitelist: []};
         controller.storage.users.save(data, function (err) {
           if (err) {
             console.log("Failed to initialize farfar data!");
