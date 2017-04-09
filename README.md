@@ -30,11 +30,11 @@ In addition to this, there are also two notifications sent only to person respon
  * **Sunday:** A message to remind you that you are responsible for fika this week.
  * **Thursday at 10:00:** A message to remind you that you are responsible for fika today.
 
-#### Fika related commands
+#### :cookie: Fika related commands
 
  * `fika/next/nästa`: If any of these words are mentioned FARFAR will respond with the next fika date, and the person responsible.
 
-#### Member management commands
+#### :busts_in_silhouette: Member management commands
 
  * `add @slackuser`: Add a new member to the fika group. The initial position will be last in the fika queue.
  * `remove @slackuser`: Remove someone from the fika group.
@@ -42,11 +42,18 @@ In addition to this, there are also two notifications sent only to person respon
  * `rotate`: Move this week's fika responsible to the last position in the fika queue.
  * `move @slackuser 2`: Move user from its current position in the list to position 2 (in this case). Can be used to reorder the list.
 
-#### Date blacklisting commands
+#### :date: Date blacklisting commands
 
  * `blacklist 2016-10-17`: Add the given date to the blacklist, so no fika will be served that day.
  * `whitelist 2016-10-17`: Remove the given date from the blacklist.
  * `blacklist`: List all dates in the blacklist.
+
+#### :lock: Access control commands
+To prevent [annoying people](# "Erik Mårtensson") to perform modifications of the fika queue, FARFAR supports basic access control. A whitelist of users allowed to modify the queue is maintained and controlled by the commands below. If the whitelist is empty, all users can perform modifications, otherwise only people in the list can use commands that modifies the queue in any way. Default is an empty whitelist.
+
+ * `allow @user`: Add new administrator to the whitelist.
+ * `disallow @user`: Remove administrator from whitelist.
+ * `admins`: List all administrators in the whitelist.
 
 #### Fun commands
 You have the source code. Go get 'em :wink:
