@@ -29,6 +29,7 @@ module.exports = function (config, controller, model) {
 > • \`blacklist 2017-03-19\`: add date to blacklist, no fika will be served that day.
 > • \`whitelist 2017-03-19\`: remove date from blacklist.
 > • \`blacklist\`: list all dates in the blacklist.
+> • \`delay\`: delay the next fika by one week by adding that date to the blacklist.
 :lock: Access control commands
 > • \`allow @user\`: add new administrator
 > • \`disallow @user\`: remove administrator
@@ -86,6 +87,14 @@ module.exports = function (config, controller, model) {
       bot.reply(message, msg);
     }));
   });
+
+  controller.hears('^delay$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
+    model.nextFika(errorWrap(bot, message, function (bot, message, data) {
+      model.blacklist.add(data.date.format('YYYY-MM-DD'), errorWrap(bot, message, function (bot, message) {
+        bot.reply(message, 'I have added ' + data.date.format('YYYY-MM-DD') + ' to the blacklist!')
+      }))
+    }))
+  }))
 
   // Member management
   controller.hears('^add <@(.*)>$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
