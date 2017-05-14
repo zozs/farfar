@@ -8,7 +8,6 @@
   },
   "main": "farfar.js",
   "scripts": {
-    "start": "nodemon index.js",
     "test": "jasmine"
   },
   "author": "Linus Karlsson",
@@ -19,8 +18,7 @@
     "config": "^1.21.0",
     "moment": "^2.15.1",
     "node-schedule": "^1.1.1",
-    "nodemailer": "^2.6.4",
-    "nodemon": "^1.11.0"
+    "nodemailer": "^2.6.4"
   },
   "devDependencies": {
     "jasmine": "^2.5.2"

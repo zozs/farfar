@@ -1,6 +1,8 @@
 FARFAR
 ======
 
+[![Build Status](https://travis-ci.org/zozs/farfar.svg?branch=master)](https://travis-ci.org/zozs/farfar)
+
 **Fully Automated Robotic Fika Announcer and Reminder**
 
 FARFAR is a Slack bot which periodically sends out reminders about this week's fika to a set of Slack users. Each week a new person is responsible for this week's fika, in a round-robin fashion.
@@ -84,14 +86,14 @@ The configuration file has the following properties:
 
 ### Running
 
-Just launch the `index.js` file. You may want to use `nodemon` as well, since it is included as a dependency, if so, simply run `npm start`.
+Just launch the `farfar.js` file.
 
 ## License
 
 FARFAR is licensed under the ISC license, see the `LICENSE` file, or the text below:
 
 ```
-Copyright (c) 2016, Linus Karlsson
+Copyright (c) 2016, 2017, Linus Karlsson
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
