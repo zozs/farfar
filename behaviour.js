@@ -89,10 +89,15 @@ module.exports = function (config, controller, model) {
   });
 
   controller.hears('^delay$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
-    model.nextFika(errorWrap(bot, message, function (bot, message, data) {
-      model.blacklist.add(data.date.format('YYYY-MM-DD'), errorWrap(bot, message, function (bot, message) {
-        bot.reply(message, 'I have added ' + data.date.format('YYYY-MM-DD') + ' to the blacklist!')
-      }))
+    model.blacklist.delayOnce(errorWrap(bot, message, function (bot, message, data) {
+      bot.reply(message, 'I have added ' + data.date.format('YYYY-MM-DD') + ' to the blacklist!')
+    }))
+  }))
+  
+  controller.hears('^delay (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
+    model.blacklist.delayUntil(message.match[1], errorWrap(bot, message, function (bot, message, data) {
+      let dates = data.dates.map(d => d.format('YYYY-MM-DD')).join(', ')
+      bot.reply(message, 'I have added ' + dates + ' to the blacklist!')
     }))
   }))
 

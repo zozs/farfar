@@ -72,6 +72,17 @@ module.exports = function (config, controller) {
         if (err) { cb(err); return; }
         cb(null, data.blacklist);
       });
+    },
+    delayOnce: function (cb) {
+      funcs.nextFika(function (err, data) {
+        if (err) { cb(err); return; }
+        funcs.blacklist.add(data.date.format('YYYY-MM-DD'), err => cb(err, data))
+      })
+    },
+    delayUntil: function (untilStr, cb) {
+      let iterations = 0
+
+      cb(null, { dates: [] })
     }
   };
 
