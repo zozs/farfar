@@ -84,6 +84,7 @@ describe('delay until for', function () {
     { today: '2017-06-17 12:00:00', input: '2017-06-29', output: ['2017-06-22', '2017-06-29'], name: 'Thursday to Thursday two weeks ahead' },
     { today: '2017-06-18 12:00:00', input: '2017-06-30', output: ['2017-06-22', '2017-06-29'], name: 'Thursday to Friday two weeks ahead' },
     { today: '2017-06-18 12:00:00', input: '2017-07-07', output: ['2017-06-22', '2017-06-29', '2017-07-06'], name: 'Thursday to Friday three weeks ahead' },
+    { today: '2017-06-18 11:36:00', input: '2017-06-22', output: ['2017-06-22'], name: 'Sunday to Thursday' },
   ]
 
   beforeEach(function () {

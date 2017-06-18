@@ -30,6 +30,7 @@ module.exports = function (config, controller, model) {
 > • \`whitelist 2017-03-19\`: remove date from blacklist.
 > • \`blacklist\`: list all dates in the blacklist.
 > • \`delay\`: delay the next fika by one week by adding that date to the blacklist.
+> • \`delay 2017-08-31\`: delay the next fika until and including the given date.
 :lock: Access control commands
 > • \`allow @user\`: add new administrator
 > • \`disallow @user\`: remove administrator
@@ -96,8 +97,12 @@ module.exports = function (config, controller, model) {
   
   controller.hears('^delay (\\d{4}-[01]\\d-[0-3]\\d)$', ['direct_message', 'direct_mention'], accessControl(function (bot, message) {
     model.blacklist.delayUntil(message.match[1], errorWrap(bot, message, function (bot, message, data) {
-      let dates = data.dates.map(d => d.format('YYYY-MM-DD')).join(', ')
-      bot.reply(message, 'I have added ' + dates + ' to the blacklist!')
+      if (data.dates.length !== 0) {
+        let dates = data.dates.map(d => moment(d).format('YYYY-MM-DD')).join(', ')
+        bot.reply(message, 'I have added ' + dates + ' to the blacklist!')
+      } else {
+        bot.reply(message, 'No dates were blacklisted.')
+      }
     }))
   }))
 

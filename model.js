@@ -21,7 +21,7 @@ module.exports = function (config, controller) {
       var sameDay = config.get('rightNowReminder');
       var fikaDay = sameDay.dayOfWeek;
       do {
-        var nextFikaDate = moment(now).day(fikaDay).hour(sameDay.hour).minute(sameDay.minute);
+        var nextFikaDate = moment(now).day(fikaDay).hour(sameDay.hour).minute(sameDay.minute).second(0).millisecond(0)
         fikaDay += 7;
       } while (nextFikaDate < now || data.blacklist.indexOf(nextFikaDate.format('YYYY-MM-DD')) >= 0);
       
@@ -80,7 +80,7 @@ module.exports = function (config, controller) {
       const sameDay = config.get('rightNowReminder')
       let iterations = 0
       let until = moment(untilStr)
-      until.hour(sameDay.hour).minute(sameDay.minute).second(0)
+      until.hour(sameDay.hour).minute(sameDay.minute).second(0).millisecond(0)
       let addedDelays = []
       let oneMoreDelay = () => {
         iterations += 1
@@ -99,7 +99,7 @@ module.exports = function (config, controller) {
 
         funcs.nextFika((err, data) => {
           if (err) { return cb(err) }
-          if (moment(data.date) <= until) {
+          if (data.date <= until) {
             // We need to add one more date to the blacklist.
             funcs.blacklist.add(data.date.format('YYYY-MM-DD'), (err) => {
               if (err) { return cb(err) }

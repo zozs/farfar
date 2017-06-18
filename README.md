@@ -50,6 +50,7 @@ In addition to this, there are also two notifications sent only to person respon
  * `whitelist 2016-10-17`: Remove the given date from the blacklist.
  * `blacklist`: List all dates in the blacklist.
  * `delay`: Delay the next fika by one week by adding that date to the blacklist.
+ * `delay 2017-08-31`: delay the next fika until and including the given date.
 
 #### :lock: Access control commands
 To prevent [annoying people](# "Erik Mårtensson") to perform modifications of the fika queue, FARFAR supports basic access control. A whitelist of users allowed to modify the queue is maintained and controlled by the commands below. If the whitelist is empty, all users can perform modifications, otherwise only people in the list can use commands that modifies the queue in any way. Default is an empty whitelist.
