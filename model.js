@@ -1,9 +1,6 @@
 var async = require('async');
 var moment = require('moment');
 
-//controller.storage.users.get
-//lookupUserId
-
 module.exports = function (config, controller) {
   var funcs = {};
 
@@ -75,14 +72,47 @@ module.exports = function (config, controller) {
     },
     delayOnce: function (cb) {
       funcs.nextFika(function (err, data) {
-        if (err) { cb(err); return; }
+        if (err) { return cb(err) }
         funcs.blacklist.add(data.date.format('YYYY-MM-DD'), err => cb(err, data))
       })
     },
     delayUntil: function (untilStr, cb) {
+      const sameDay = config.get('rightNowReminder')
       let iterations = 0
+      let until = moment(untilStr)
+      until.hour(sameDay.hour).minute(sameDay.minute).second(0)
+      let addedDelays = []
+      let oneMoreDelay = () => {
+        iterations += 1
+        if (iterations >= 52) {
+          // To avoid infinite loops
+          // We must also remove dates already added to blacklist to tidy up.
+          async.eachSeries(addedDelays, funcs.blacklist.remove, (err) => {
+            if (err) {
+              cb('Invalid date or too far in the future. Also failed cleanup!')
+            } else {
+              cb('Invalid date or too far in the future')
+            }
+          })
+          return
+        }
 
-      cb(null, { dates: [] })
+        funcs.nextFika((err, data) => {
+          if (err) { return cb(err) }
+          if (moment(data.date) <= until) {
+            // We need to add one more date to the blacklist.
+            funcs.blacklist.add(data.date.format('YYYY-MM-DD'), (err) => {
+              if (err) { return cb(err) }
+              addedDelays.push(data.date.format('YYYY-MM-DD'))
+              oneMoreDelay()
+            })
+          } else {
+            // We have delayed enough!
+            cb(null, { dates: addedDelays })
+          }
+        })
+      }
+      oneMoreDelay()
     }
   };
 
