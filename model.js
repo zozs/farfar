@@ -17,7 +17,8 @@ module.exports = function (config, controller) {
       if (err) { cb(err); return; }
       if (data.members.length == 0) { cb("no users"); return; }
       // Find date of next Thursday (or other fikaDay) not blacklisted.
-      var now = moment();
+      // We only consider minute-based precision, to avoid nasty timing errors.
+      var now = moment().second(0).millisecond(0)
       var sameDay = config.get('rightNowReminder');
       var fikaDay = sameDay.dayOfWeek;
       do {

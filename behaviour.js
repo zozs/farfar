@@ -11,6 +11,10 @@ module.exports = function (config, controller, model) {
     bot.reply(message,'Sorry, you should speak to Martin about kebab.');
   });
 
+  controller.hears('strike', ['direct_message', 'direct_mention'], function (bot, message) {
+    controller.sayToChannel('lunchoftheday', 'Hey, I want vacation as well! :rage:')
+  });
+
   controller.hears('sha1easteregg',['direct_message','direct_mention','mention'], function (bot, message) {
     controller.sayToChannel(config.get('announceChannel'), 'Holy shit a collision in SHA-1 :scream:');
   });
@@ -61,7 +65,7 @@ module.exports = function (config, controller, model) {
         if (valid) {
           onAuthorized(bot, message);
         } else {
-          bot.reply(message, 'Access denied');
+          bot.reply(message, config.get('accessDeniedMessage'))
         }
       });
     };

@@ -6,5 +6,6 @@
   "sameDayReminder": {"hour": 10, "minute": 0, "dayOfWeek": 4},
   "rightNowReminder": {"hour": 14, "minute": 57, "dayOfWeek": 4},
   "announceChannel": "general",
+  "accessDeniedMessage": "Access denied",
   "nodemailerTransport": "smtp://smtp.example.com"
 }
