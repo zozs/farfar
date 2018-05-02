@@ -15,6 +15,10 @@ module.exports = function (config, controller, model) {
     controller.sayToChannel('lunchoftheday', 'Hey, I want vacation as well! :rage:')
   });
 
+  controller.hears('teaseerik', ['direct_message', 'direct_mention'], function (bot, message) {
+    controller.sayToChannel(config.get('announceChannel'), 'You better fix some real fika this time, Erik.\n\nDemanding regards,\nFARFAR');
+  });
+
   controller.hears('sha1easteregg',['direct_message','direct_mention','mention'], function (bot, message) {
     controller.sayToChannel(config.get('announceChannel'), 'Holy shit a collision in SHA-1 :scream:');
   });

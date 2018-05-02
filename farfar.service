@@ -1,0 +1,14 @@
+[Unit]
+Description=FARFAR fika bot
+After=network.target
+
+[Service]
+Type=simple
+User=linus
+Group=linus
+WorkingDirectory=/home/linus/development/work/farfar-slack
+ExecStart=/usr/bin/node farfar.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
