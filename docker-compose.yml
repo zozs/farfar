@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  farfar:
+    build: ./
+    restart: unless-stopped
+    volumes:
+      - ./farfar_data/:/app/data/
+      - ./config/local.json:/app/src/config/local.json

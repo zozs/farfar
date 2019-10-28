@@ -1,22 +1,24 @@
-var nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer')
 
 module.exports = function (config) {
   // Prepare e-mail transport.
-  var transporter = nodemailer.createTransport(config.get('nodemailerTransport'));
+  const transporter = nodemailer.createTransport(config.get('nodemailerTransport'))
+  const mailFrom = config.get('mailFrom')
   
   return {
     send: function (member, emailSubject, text) {
-      var mailOptions = {
-        from: '"FARFAR" <linus.karlsson@eit.lth.se>',
-        to: '"' + member.name + '" <' + member.email + '>',
+      const mailOptions = {
+        from: mailFrom,
+        to: `"${member.name}" <${member.email}>`,
+        bcc: mailFrom,
         subject: emailSubject,
         text: text
-      };
+      }
       transporter.sendMail(mailOptions, function (err, info) {
         if (err) {
-          console.log('Failed to send e-mail:', err);
+          console.log('Failed to send e-mail:', err)
         }
-      });
+      })
     }
-  };
-};
+  }
+}

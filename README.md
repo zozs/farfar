@@ -84,6 +84,7 @@ The configuration file has the following properties:
  * `fikaDay`: The day fika is served. Default is `4` which is Thursday.
  * `announceChannel`: The channel to send public fika announcements to.
  * `nodemailerTransport`: SMTP server to use for sending e-mails. See documentation for Nodemailer for further information.
+ * `mailFrom`: The sender of the e-mail.
 
 ### Running
 
@@ -94,7 +95,7 @@ Just launch the `farfar.js` file.
 FARFAR is licensed under the ISC license, see the `LICENSE` file, or the text below:
 
 ```
-Copyright (c) 2016, 2017, Linus Karlsson
+Copyright (c) 2016, 2017, 2018, 2019, Linus Karlsson
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

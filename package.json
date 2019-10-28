@@ -8,6 +8,7 @@
   },
   "main": "farfar.js",
   "scripts": {
+    "start": "node farfar.js",
     "test": "jasmine"
   },
   "author": "Linus Karlsson",

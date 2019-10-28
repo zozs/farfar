@@ -1,11 +1,12 @@
 {
   "token": "",
-  "storageDirectory": "farfar_data",
+  "storageDirectory": "/app/data",
   "storageKey": "farfar",
   "weeklyReminder": {"hour": 12, "minute": 0, "dayOfWeek": 0},
   "sameDayReminder": {"hour": 10, "minute": 0, "dayOfWeek": 4},
   "rightNowReminder": {"hour": 14, "minute": 57, "dayOfWeek": 4},
   "announceChannel": "general",
   "accessDeniedMessage": "Access denied",
-  "nodemailerTransport": "smtp://smtp.example.com"
+  "nodemailerTransport": "smtp://smtp.example.com",
+  "mailFrom": "\"FARFAR\" <example@example.com>"
 }
