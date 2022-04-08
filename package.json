@@ -17,7 +17,7 @@
     "async": "^2.6.0",
     "botkit": "^0.6.0",
     "config": "^1.30.0",
-    "moment": "^2.22.1",
+    "moment": "^2.29.2",
     "node-schedule": "^1.3.0",
     "nodemailer": "^4.6.4"
   },
