@@ -14,7 +14,7 @@
   "author": "Linus Karlsson",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.6.0",
+    "async": "^3.2.2",
     "botkit": "^0.6.0",
     "config": "^1.30.0",
     "moment": "^2.22.1",
