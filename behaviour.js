@@ -92,7 +92,12 @@ module.exports = function (config, controller, model) {
   controller.hears('^blacklist$', ['direct_message', 'direct_mention'], function (bot, message) {
     model.blacklist.list(errorWrap(bot, message, function (bot, message, data) {
       let msg = 'This is the current blacklist:\n';
-      data.forEach(date => { msg += date + '\n'; });
+      let today = moment(now).format('YYYY-MM-DD');
+      data.forEach(date => {
+        if (date >= today) {
+          msg += date + '\n';
+        }
+      });
       bot.reply(message, msg);
     }));
   });
